@@ -3,9 +3,12 @@ import os
 
 class SlocCalculator:
     def __init__(self, target_folder: str, excluded_files: list, excluded_folders: list):
+        if not os.path.exists(target_folder) or not os.path.isdir(target_folder):
+            raise Exception("Target location does not exist/is not a folder")
+
         self.file_count = 0
         self.files = {}
-        self.allowed_files = excluded_files
+        self.restricted_files = excluded_files
         SlocCalculator.ensure_allowed_files_have_dot(self)
         self.excluded_folders = excluded_folders
         self.target_folder = target_folder
@@ -15,7 +18,10 @@ class SlocCalculator:
     def get_base_report(self):
         sloc_total = 0
         for filename in self.files:
-            sloc_total = sloc_total + self.files[filename]
+            try:
+                sloc_total = sloc_total + self.files[filename]
+            except:
+                pass
 
         print(sloc_total, 'SLOC')
 
@@ -23,7 +29,10 @@ class SlocCalculator:
     def get_detailed_report(self):
         sloc_total = 0
         for filename in self.files:
-            sloc_total = sloc_total + self.files[filename]
+            try:
+                sloc_total = sloc_total + self.files[filename]
+            except:
+                pass
 
         print(sloc_total, 'SLOC')
         self.state_all_file_statistics()
@@ -39,24 +48,26 @@ class SlocCalculator:
             self.files[file] = 0
 
     def form_file_sloc_dictionary(self):
-        for root, subFolder, files in os.walk("./"):
+        for root, subFolder, files in os.walk(self.target_folder):
             subFolder[:] = [d for d in subFolder if d not in self.excluded_folders]
             for item in files:
                 if self.file_is_allowed(item):
                     filename = os.path.join(root, item)
-                    self.add_file(item)
+                    self.add_file(filename)
                     self.files[filename] = SlocCalculator.get_sloc_count(filename)
 
     def file_is_allowed(self, filename: str) -> bool:
+        if len(self.restricted_files) == 0:
+            return True
         ftype: str
-        for ftype in self.allowed_files:
+        for ftype in self.restricted_files:
             if not filename.endswith(ftype):
                 return True
         return False
 
     def ensure_allowed_files_have_dot(self):
-        for i in range(len(self.allowed_files)):
-            self.allowed_files[i] = SlocCalculator.add_dot_to_file_type_if_needed(self.allowed_files[i])
+        for i in range(len(self.restricted_files)):
+            self.restricted_files[i] = SlocCalculator.add_dot_to_file_type_if_needed(self.restricted_files[i])
 
     @staticmethod
     def get_sloc_count(filename: str):
