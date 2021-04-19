@@ -26,7 +26,7 @@ optional arguments:
 
 **Example**:
 
-Calculate SLOC of files in root folder and in subfolders, recursively
+Calculate SLOC of files in current folder and subfolders, recursively
 
 In:
 ```
