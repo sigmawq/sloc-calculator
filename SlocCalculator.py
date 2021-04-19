@@ -57,13 +57,11 @@ class SlocCalculator:
                     self.files[filename] = SlocCalculator.get_sloc_count(filename)
 
     def file_is_allowed(self, filename: str) -> bool:
-        if len(self.restricted_files) == 0:
-            return True
         ftype: str
         for ftype in self.restricted_files:
-            if not filename.endswith(ftype):
-                return True
-        return False
+            if filename.endswith(ftype):
+                return False
+        return True
 
     def ensure_allowed_files_have_dot(self):
         for i in range(len(self.restricted_files)):
